@@ -1,15 +1,26 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
     [SerializeField] List<GameObject> MobsTemplate;
+    [SerializeField] GameObject text;
+    [SerializeField] Slider TimeSlider;
     List<Mobs> Mobs;
-    float Timer = 5f;
+    Player player;
+    float maxTime = 5f;
+    float timeLeft = 5f;
     // Start is called before the first frame update
     void Start()
     {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        player = new Player();
         GenerateMobs();
     }
 
@@ -27,23 +38,40 @@ public class GameController : MonoBehaviour
     void Update()
     {
         TimeCountdown();
-        TouchCount();
+        TouchCount();     
     }
 
     void TimeCountdown()
     {
-        Timer -= Time.deltaTime;
-        if (Timer < 0)
+        timeLeft -= Time.deltaTime;
+        TimeSlider.value = timeLeft / maxTime;
+        if (timeLeft < 0)
         {
-            Debug.Log("TIME OUT!");
+
         }
     }
 
+    int i = 0;
     void TouchCount()
     {
         if (Input.touchCount > 0)
-        {
-            Debug.Log(Input.touchCount);
+        {          
+            Touch touch = Input.GetTouch(0);
+            if (touch.phase == TouchPhase.Ended)
+            {
+                i++;
+                player.TapCounting();
+                text.gameObject.GetComponent<Text>().text = $"tap: {i} tapcount: {player.tapCount} mobs: {MobsTemplate.Count}";
+                CheckResult();
+            }
         }
+    }
+
+    void CheckResult()
+    {
+        if(player.tapCount == MobsTemplate.Count)
+        {
+            text.gameObject.GetComponent<Text>().text = "Win";
+        }    
     }
 }
